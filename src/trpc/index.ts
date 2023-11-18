@@ -2,44 +2,65 @@ import {getKindeServerSession} from '@kinde-oss/kinde-auth-nextjs/server';
 import {publicProcedure, router, privateProcedure} from './trpc';
 import {TRPCError} from '@trpc/server';
 import {db} from '@/db';
+import {z} from 'zod';
 
 export const appRouter = router({
    authCallback: publicProcedure.query(async () => {
-      try {
-         const {getUser} = getKindeServerSession();
-         const user = await getUser();
+      const {getUser} = getKindeServerSession();
+      const user = await getUser();
 
-         if (!user?.id || !user?.email) {
-            throw new TRPCError({code: 'UNAUTHORIZED'});
-         }
+      if (!user?.id || !user.email) throw new TRPCError({code: 'UNAUTHORIZED'});
 
-         const dbUser = await db.user.findFirst({
-            where: {
+      // check if the user is in the database
+      const dbUser = await db.user.findFirst({
+         where: {
+            id: user.id,
+         },
+      });
+
+      if (!dbUser) {
+         // create user in db
+         await db.user.create({
+            data: {
                id: user.id,
+               email: user.email,
             },
          });
-
-         if (!dbUser) {
-            await db.user.create({
-               data: {
-                  id: user.id,
-                  email: user.email,
-               },
-            });
-         }
-      } catch (err) {
-         throw err;
       }
+
+      return {success: true};
    }),
 
-   getUserFiles: privateProcedure.query(async({ctx}) => {
-      const {user, userId} = ctx;
-      const id = user.id
+   getUserFiles: privateProcedure.query(async ({ctx}) => {
+      const {userId} = ctx;
+
       return await db.file.findMany({
          where: {
-            userId
-         }
-      })
+            userId,
+         },
+      });
+   }),
+
+   deleteFile: privateProcedure.input(z.object({id: z.string()})).mutation(async ({ctx, input}) => {
+      const {userId} = ctx;
+
+      const file = await db.file.findFirst({
+         where: {
+            id: input.id,
+            userId,
+         },
+      });
+
+      if (!file) throw new TRPCError({code: 'NOT_FOUND'});
+
+      await db.file.delete({
+         where: {
+            id: input.id,
+         },
+      });
+
+      return file;
    }),
 });
+
 export type AppRouter = typeof appRouter;
