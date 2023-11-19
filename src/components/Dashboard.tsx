@@ -1,16 +1,34 @@
 'use client';
 import {trpc} from '@/app/_trpc/client';
 import UploadButton from './UploadButton';
-import {GhostIcon, MessageSquare, Plus, Trash} from 'lucide-react';
+import {GhostIcon, Loader2, MessageSquare, Plus, Trash} from 'lucide-react';
 import Skeleton from 'react-loading-skeleton';
 import Link from 'next/link';
 import {format} from 'date-fns';
 import {Button} from './ui/button';
+import { useState } from 'react';
 
 interface DashboardProps {}
 
 const Dashboard = ({}: DashboardProps) => {
+
+   const [currentFile, setCurrentFile] = useState<string | null>();
+
+   const utils =trpc.useUtils()
+
    const {data: files, isLoading} = trpc.getUserFiles.useQuery();
+
+   const {mutate: deleteFile, } = trpc.deleteFile.useMutation({
+      onSuccess: () => {
+         utils.getUserFiles.invalidate();
+      },
+      onMutate({id}) {
+         setCurrentFile(id)
+      },
+      onSettled() {
+         setCurrentFile(null)
+      }
+   });
 
    return (
       <main className='max-auto max-w-7xl md:p-10'>
@@ -20,7 +38,7 @@ const Dashboard = ({}: DashboardProps) => {
          </div>
 
          {files && files.length !== 0 ? (
-            <ul className='mt-8 grid grid-cols-1 gap-6 divide-y divide-zinc-200 md:grid-cols-2 lg:grid-cols-3f'>
+            <ul className='mt-8 grid grid-cols-1 gap-6 divide-y divide-zinc-200 md:grid-cols-2 lg:grid-cols-3'>
                {files
                   .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
                   .map((file) => (
@@ -45,14 +63,22 @@ const Dashboard = ({}: DashboardProps) => {
                               <Plus className='h-4 w-4' />
                               {format(new Date(file.createdAt), 'MMM yyyy')}
                            </div>
-                           
+
                            <div className='flex items-center gap-2'>
                               <MessageSquare className='h-4 w-4' />
                               mocked
                            </div>
 
-                           <Button size={'sm'} className='w-full' variant={'destructive'}>
-                              <Trash className='h-4 w-4' />
+                           <Button
+                              size={'sm'}
+                              className='w-full'
+                              variant={'destructive'}
+                              onClick={() => deleteFile({id: file.id})}
+                           >
+                             {currentFile === file.id ? (
+                              <Loader2 className='h-4 w-4 animate-spin'/>
+                             ) : (
+                             <Trash className='h-4 w-4' />)}
                            </Button>
                         </div>
                      </li>

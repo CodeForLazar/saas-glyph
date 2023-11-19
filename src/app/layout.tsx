@@ -18,7 +18,7 @@ export default function RootLayout({children}: {children: React.ReactNode}) {
    return (
       <html lang='en' className='light'>
          <Providers>
-            <body className={cn('min-h-screen font-cans antialiased', inter.className)}>
+            <body suppressHydrationWarning={true} className={cn('min-h-screen font-cans antialiased', inter.className)}>
                <Navbar />
                {children}
             </body>
