@@ -4,18 +4,29 @@ import { useState } from 'react';
 import { Dialog, DialogContent, DialogTrigger } from './ui/dialog';
 import { Button } from './ui/button';
 import Dropzone from 'react-dropzone';
-import { Cloud, File } from 'lucide-react';
+import { Cloud, File, Loader2 } from 'lucide-react';
 import { Progress } from './ui/progress';
 import { useUploadThing } from '@/lib/uploadthing';
 import { useToast } from './ui/use-toast';
+import { trpc } from '@/app/_trpc/client';
+import { useRouter } from 'next/navigation';
 
 const UploadDropzone = () => {
-   const [isUploading, setIsUploading] = useState(true);
+   const router = useRouter();
+   const [isUploading, setIsUploading] = useState(false);
    const [uploadProgress, setUploadProgress] = useState(0);
 
    const { toast } = useToast();
 
    const { startUpload } = useUploadThing('pdfUploader');
+
+   const { mutate: startPoling } = trpc.getFile.useMutation({
+      onSuccess: (file) => {
+         router.push(`/dashboard/${file.id}`);
+      },
+      retry: true,
+      retryDelay: 500
+   });
 
    const startSimulatedProgress = () => {
       setUploadProgress(0);
@@ -44,7 +55,7 @@ const UploadDropzone = () => {
                return toast({
                   title: 'Something went wrong',
                   description: 'Please try again',
-                  variant: 'destructive',
+                  variant: 'destructive'
                });
             }
 
@@ -56,12 +67,13 @@ const UploadDropzone = () => {
                return toast({
                   title: 'Something went wrong',
                   description: 'Please try again',
-                  variant: 'destructive',
+                  variant: 'destructive'
                });
             }
 
             clearInterval(progressInterval);
             setUploadProgress(100);
+            startPoling({ key });
          }}
       >
          {({ getRootProps, getInputProps, acceptedFiles }) => (
@@ -95,8 +107,15 @@ const UploadDropzone = () => {
                      {isUploading && (
                         <div className='w-full mt-4 max-w-xs mx-auto'>
                            <Progress value={uploadProgress} className='h-1 w-full bg-zinc-200' />
+                           {uploadProgress === 100 && (
+                              <div className='flex gap-1 items-center justify-center text-sm text-zinc-700 text-center pt-2'>
+                                 <Loader2 className='h-3 w-3 animate-spin' />
+                              </div>
+                           )}
                         </div>
                      )}
+
+                     <input {...getInputProps} type='file' id='dropzone-file' className='hidden' />
                   </label>
                </div>
             </div>

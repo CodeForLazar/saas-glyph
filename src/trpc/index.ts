@@ -14,8 +14,8 @@ export const appRouter = router({
       // check if the user is in the database
       const dbUser = await db.user.findFirst({
          where: {
-            id: user.id,
-         },
+            id: user.id
+         }
       });
 
       if (!dbUser) {
@@ -23,8 +23,8 @@ export const appRouter = router({
          await db.user.create({
             data: {
                id: user.id,
-               email: user.email,
-            },
+               email: user.email
+            }
          });
       }
 
@@ -36,9 +36,24 @@ export const appRouter = router({
 
       return await db.file.findMany({
          where: {
-            userId,
-         },
+            userId
+         }
       });
+   }),
+
+   getFile: privateProcedure.input(z.object({key: z.string()})).mutation(async ({ctx, input}) => {
+      const {userId} = ctx;
+
+      const file = await db.file.findFirst({
+         where: {
+            key: input.key,
+            userId
+         }
+      });
+
+      if (!file) throw new TRPCError({code: 'NOT_FOUND'});
+
+      return file;
    }),
 
    deleteFile: privateProcedure.input(z.object({id: z.string()})).mutation(async ({ctx, input}) => {
@@ -47,20 +62,20 @@ export const appRouter = router({
       const file = await db.file.findFirst({
          where: {
             id: input.id,
-            userId,
-         },
+            userId
+         }
       });
 
       if (!file) throw new TRPCError({code: 'NOT_FOUND'});
 
       await db.file.delete({
          where: {
-            id: input.id,
-         },
+            id: input.id
+         }
       });
 
       return file;
-   }),
+   })
 });
 
 export type AppRouter = typeof appRouter;
