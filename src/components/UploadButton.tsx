@@ -1,15 +1,21 @@
 'use client';
 
-import {useState} from 'react';
-import {Dialog, DialogContent, DialogTrigger} from './ui/dialog';
-import {Button} from './ui/button';
+import { useState } from 'react';
+import { Dialog, DialogContent, DialogTrigger } from './ui/dialog';
+import { Button } from './ui/button';
 import Dropzone from 'react-dropzone';
-import {Cloud, File} from 'lucide-react';
-import {Progress} from './ui/progress';
+import { Cloud, File } from 'lucide-react';
+import { Progress } from './ui/progress';
+import { useUploadThing } from '@/lib/uploadthing';
+import { useToast } from './ui/use-toast';
 
 const UploadDropzone = () => {
    const [isUploading, setIsUploading] = useState(true);
    const [uploadProgress, setUploadProgress] = useState(0);
+
+   const { toast } = useToast();
+
+   const { startUpload } = useUploadThing('pdfUploader');
 
    const startSimulatedProgress = () => {
       setUploadProgress(0);
@@ -32,11 +38,33 @@ const UploadDropzone = () => {
             setIsUploading(true);
             const progressInterval = startSimulatedProgress();
 
+            const res = await startUpload(acceptedFile);
+
+            if (!res) {
+               return toast({
+                  title: 'Something went wrong',
+                  description: 'Please try again',
+                  variant: 'destructive',
+               });
+            }
+
+            const [fileResponse] = res;
+
+            const key = fileResponse?.key;
+
+            if (!key) {
+               return toast({
+                  title: 'Something went wrong',
+                  description: 'Please try again',
+                  variant: 'destructive',
+               });
+            }
+
             clearInterval(progressInterval);
             setUploadProgress(100);
          }}
       >
-         {({getRootProps, getInputProps, acceptedFiles}) => (
+         {({ getRootProps, getInputProps, acceptedFiles }) => (
             <div
                {...getRootProps()}
                className='border h-64 m-4 border-dashed border-gray-300 rounded-lg'
