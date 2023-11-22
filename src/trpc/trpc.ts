@@ -1,5 +1,5 @@
-import {getKindeServerSession} from '@kinde-oss/kinde-auth-nextjs/server';
-import {TRPCError, initTRPC} from '@trpc/server';
+import { getKindeServerSession } from '@kinde-oss/kinde-auth-nextjs/server';
+import { TRPCError, initTRPC } from '@trpc/server';
 /**
  * Initialization of tRPC backend
  * Should be done only once per backend!
@@ -8,19 +8,19 @@ const t = initTRPC.create();
 const middleware = t.middleware;
 
 const isAuth = middleware(async (options) => {
-   const {getUser} = getKindeServerSession();
+   const { getUser } = getKindeServerSession();
    const user = await getUser();
 
    if (!user || !user.id) {
-      throw new TRPCError({code: 'UNAUTHORIZED'})
+      throw new TRPCError({ code: 'UNAUTHORIZED' });
    }
 
    return options.next({
       ctx: {
          userId: user.id,
-         user,
+         user
       }
-   })
+   });
 });
 /**
  * Export reusable router and procedure helpers

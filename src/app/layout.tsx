@@ -21,7 +21,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
          <Providers>
             <body
                suppressHydrationWarning={true}
-               className={cn('min-h-screen font-cans antialiased', inter.className)}
+               className={cn('font-cans min-h-screen antialiased', inter.className)}
             >
                <Toaster />
                <Navbar />

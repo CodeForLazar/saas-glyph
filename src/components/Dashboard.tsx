@@ -1,39 +1,38 @@
 'use client';
-import {trpc} from '@/app/_trpc/client';
+import { trpc } from '@/app/_trpc/client';
 import UploadButton from './UploadButton';
-import {GhostIcon, Loader2, MessageSquare, Plus, Trash} from 'lucide-react';
+import { GhostIcon, Loader2, MessageSquare, Plus, Trash } from 'lucide-react';
 import Skeleton from 'react-loading-skeleton';
 import Link from 'next/link';
-import {format} from 'date-fns';
-import {Button} from './ui/button';
+import { format } from 'date-fns';
+import { Button } from './ui/button';
 import { useState } from 'react';
 
 interface DashboardProps {}
 
 const Dashboard = ({}: DashboardProps) => {
-
    const [currentFile, setCurrentFile] = useState<string | null>();
 
-   const utils =trpc.useUtils()
+   const utils = trpc.useUtils();
 
-   const {data: files, isLoading} = trpc.getUserFiles.useQuery();
+   const { data: files, isLoading } = trpc.getUserFiles.useQuery();
 
-   const {mutate: deleteFile, } = trpc.deleteFile.useMutation({
+   const { mutate: deleteFile } = trpc.deleteFile.useMutation({
       onSuccess: () => {
          utils.getUserFiles.invalidate();
       },
-      onMutate({id}) {
-         setCurrentFile(id)
+      onMutate({ id }) {
+         setCurrentFile(id);
       },
       onSettled() {
-         setCurrentFile(null)
+         setCurrentFile(null);
       }
    });
 
    return (
       <main className='max-auto max-w-7xl md:p-10'>
          <div className='mt-8 flex flex-col items-start justify-between gap-4 border-b border-gray-200 pb-5 sm:flex-row sm:items-center sm:gap-0'>
-            <h1 className='mb-3 font-bold text-5xl text-gray-900'>My Files</h1>
+            <h1 className='mb-3 text-5xl font-bold text-gray-900'>My Files</h1>
             <UploadButton />
          </div>
 
@@ -47,7 +46,7 @@ const Dashboard = ({}: DashboardProps) => {
                         className='col-span-1 divide-y divide-gray-200 rounded-lg shadow transition hover:shadow-lg'
                      >
                         <Link href={`/dashboard/${file.id}`} className='flex flex-col gap-2'>
-                           <div className='pt-6 px-6 flex w-full items-center justify-between space-x-6'>
+                           <div className='flex w-full items-center justify-between space-x-6 px-6 pt-6'>
                               <div className='h-10 w-10 flex-shrink-0 rounded-full bg-gradient-to-r from-cyan-500 to-blue-500' />
                               <div className='flex-1 truncate'>
                                  <div className='flex items-center space-x-3'>
@@ -58,7 +57,7 @@ const Dashboard = ({}: DashboardProps) => {
                               </div>
                            </div>
                         </Link>
-                        <div className='px-6 mt-4 grid gird-cols-3 place-items-center py-2 gap-6 text-xs text-zinc-500'>
+                        <div className='gird-cols-3 mt-4 grid place-items-center gap-6 px-6 py-2 text-xs text-zinc-500'>
                            <div className='flex items-center gap-2'>
                               <Plus className='h-4 w-4' />
                               {format(new Date(file.createdAt), 'MMM yyyy')}
@@ -73,12 +72,13 @@ const Dashboard = ({}: DashboardProps) => {
                               size={'sm'}
                               className='w-full'
                               variant={'destructive'}
-                              onClick={() => deleteFile({id: file.id})}
+                              onClick={() => deleteFile({ id: file.id })}
                            >
-                             {currentFile === file.id ? (
-                              <Loader2 className='h-4 w-4 animate-spin'/>
-                             ) : (
-                             <Trash className='h-4 w-4' />)}
+                              {currentFile === file.id ? (
+                                 <Loader2 className='h-4 w-4 animate-spin' />
+                              ) : (
+                                 <Trash className='h-4 w-4' />
+                              )}
                            </Button>
                         </div>
                      </li>
@@ -89,7 +89,7 @@ const Dashboard = ({}: DashboardProps) => {
          ) : (
             <div className='mt-16 flex flex-col items-center gap-2'>
                <GhostIcon className='h-8 w-8 text-zinc-800' />
-               <h3 className='font-semibold text-xl'>Pretty empty around here</h3>
+               <h3 className='text-xl font-semibold'>Pretty empty around here</h3>
                <p>Let&apos;s upload your first PDF.</p>
             </div>
          )}

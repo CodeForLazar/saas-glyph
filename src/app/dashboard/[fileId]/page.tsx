@@ -28,15 +28,15 @@ const Page = async ({ params }: PageProps) => {
    if (!file) notFound();
 
    return (
-      <div className='flex-1 justify-between flex flex-col h-[calc(100vh-3.5rem)]'>
-         <div className='mx-auto w-full max-w-8xl grow lg:flex xl:px-2'>
+      <div className='flex h-[calc(100vh-3.5rem)] flex-1 flex-col justify-between'>
+         <div className='max-w-8xl mx-auto w-full grow lg:flex xl:px-2'>
             <div className='flex-1 xl:flex'>
                <div className='px-4 py-6 sm:px-6 lg:pl-8 xl:flex-1 xl:pl-6'>
-                  <PdfRenderer />
+                  <PdfRenderer url={file.url} />
                </div>
             </div>
 
-            <div className='shrink-0 flex-[0.75] border-t border-gray-200 lg"w-96 lg:border-l lf:border-t-0'>
+            <div className='lg"w-96 lf:border-t-0 flex-[0.75] shrink-0 border-t border-gray-200 lg:border-l'>
                <ChatWrapper></ChatWrapper>
             </div>
          </div>

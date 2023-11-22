@@ -1,11 +1,7 @@
-
-
-interface ChatWrapperProps {
-  
-}
+interface ChatWrapperProps {}
 
 const ChatWrapper = ({}: ChatWrapperProps) => {
-  return <div>ChatWrapper</div>
-}
+   return <div>ChatWrapper</div>;
+};
 
 export default ChatWrapper;

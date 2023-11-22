@@ -1,17 +1,17 @@
 import Link from 'next/link';
 import MaxWidthWrapper from './MaxWidthWrapper';
-import {LoginLink, RegisterLink} from '@kinde-oss/kinde-auth-nextjs/server';
-import {buttonVariants} from './ui/button';
+import { LoginLink, RegisterLink } from '@kinde-oss/kinde-auth-nextjs/server';
+import { buttonVariants } from './ui/button';
 import { ArrowRight } from 'lucide-react';
 
 interface NavbarProps {}
 
 const Navbar = ({}: NavbarProps) => {
    return (
-      <nav className='sticky h-14 inset-x-0 top-0 w-full border-b border-gray-200 bg-white/75 backdrop-blur-lg transition-all'>
+      <nav className='sticky inset-x-0 top-0 h-14 w-full border-b border-gray-200 bg-white/75 backdrop-blur-lg transition-all'>
          <MaxWidthWrapper>
             <div className='flex h-14 items-center justify-between border-b border-zinc-200'>
-               <Link href={'/'} className={'flex z-40 font-semibold'}>
+               <Link href={'/'} className={'z-40 flex font-semibold'}>
                   <span>glyph.</span>
                </Link>
 
@@ -21,7 +21,7 @@ const Navbar = ({}: NavbarProps) => {
                         href={'/pricing'}
                         className={buttonVariants({
                            variant: 'ghost',
-                           size: 'sm',
+                           size: 'sm'
                         })}
                      >
                         Pricing
@@ -29,17 +29,17 @@ const Navbar = ({}: NavbarProps) => {
                      <LoginLink
                         className={buttonVariants({
                            variant: 'ghost',
-                           size: 'sm',
+                           size: 'sm'
                         })}
                      >
                         Sing in
                      </LoginLink>
                      <RegisterLink
                         className={buttonVariants({
-                           size: 'sm',
+                           size: 'sm'
                         })}
                      >
-                        Get started <ArrowRight className='ml-1.5 h-5 w-5'/>
+                        Get started <ArrowRight className='ml-1.5 h-5 w-5' />
                      </RegisterLink>
                   </>
                </div>
