@@ -15,6 +15,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { cn } from '@/lib/utils';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem } from './ui/dropdown-menu';
 import { DropdownMenuTrigger } from '@radix-ui/react-dropdown-menu';
+import SimpleBar from 'simplebar-react';
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.js`;
 
@@ -99,36 +100,42 @@ const PdfRenderer = ({ url }: PdfRendererProps) => {
                   <DropdownMenuTrigger asChild>
                      <Button className='gap-1.5' variant={'ghost'}>
                         <Search className='h-4 w-4' />
+                        {scale * 100}% <ChevronDown className='h-3 w-3 opacity-50' />
                      </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent>
-                     <DropdownMenuItem>100%</DropdownMenuItem>
+                     <DropdownMenuItem onSelect={() => setScale(1)}>100%</DropdownMenuItem>
+                     <DropdownMenuItem onSelect={() => setScale(1.5)}>150%</DropdownMenuItem>
+                     <DropdownMenuItem onSelect={() => setScale(2)}>200%</DropdownMenuItem>
+                     <DropdownMenuItem onSelect={() => setScale(2.5)}>250%</DropdownMenuItem>
                   </DropdownMenuContent>
                </DropdownMenu>
             </div>
          </div>
          <div className='max-h-screen w-full flex-1'>
-            <div ref={ref}>
-               <Document
-                  loading={
-                     <div className='flex justify-center'>
-                        <Loader2 className='my-24 h-6 w-6 animate-spin' />
-                     </div>
-                  }
-                  onLoadSuccess={({ numPages }) => setNumPages(numPages)}
-                  onLoadError={() => {
-                     toast({
-                        title: 'Error loading PDF',
-                        description: 'Please try again later',
-                        variant: 'destructive'
-                     });
-                  }}
-                  className='max-h-full'
-                  file={url}
-               >
-                  <Page width={width ? width : 1} pageNumber={currPages} />
-               </Document>
-            </div>
+            <SimpleBar autoHide={false} className='max-[calc(100vh-10rem)]'>
+               <div ref={ref}>
+                  <Document
+                     loading={
+                        <div className='flex justify-center'>
+                           <Loader2 className='my-24 h-6 w-6 animate-spin' />
+                        </div>
+                     }
+                     onLoadSuccess={({ numPages }) => setNumPages(numPages)}
+                     onLoadError={() => {
+                        toast({
+                           title: 'Error loading PDF',
+                           description: 'Please try again later',
+                           variant: 'destructive'
+                        });
+                     }}
+                     className='max-h-full'
+                     file={url}
+                  >
+                     <Page width={width ? width : 1} pageNumber={currPages} scale={scale} />
+                  </Document>
+               </div>
+            </SimpleBar>
          </div>
       </div>
    );
