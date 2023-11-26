@@ -3,6 +3,7 @@ import { publicProcedure, router, privateProcedure } from './trpc';
 import { TRPCError } from '@trpc/server';
 import { db } from '@/db';
 import { z } from 'zod';
+import { UploadStatus } from '@prisma/client';
 
 export const appRouter = router({
    authCallback: publicProcedure.query(async () => {
@@ -79,6 +80,21 @@ export const appRouter = router({
          });
 
          return file;
+      }),
+
+   getFileUploadStatus: privateProcedure
+      .input(z.object({ fileId: z.string() }))
+      .query(async ({ ctx, input }) => {
+         const file = await db.file.findFirst({
+            where: {
+               key: input.fileId,
+               userId: ctx.userId
+            }
+         });
+
+         if (!file) return { status: 'PENDING' as const };
+
+         return { status: file.uploadStatus };
       })
 });
 
